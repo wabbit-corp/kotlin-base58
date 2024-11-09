@@ -12,6 +12,19 @@ version = "1.0.0"
 
 plugins {
     kotlin("jvm") version "2.0.20"
+
+    id("maven-publish")
+}
+
+publishing {
+  publications {
+    create<MavenPublication>("maven") {
+      groupId = "one.wabbit"
+      artifactId = "kotlin-base58"
+      version = "1.0.0"
+      from(components["java"])
+    }
+  }
 }
 
 dependencies {
@@ -30,7 +43,6 @@ java {
 tasks {
     withType<Test> {
         jvmArgs("-ea")
-
     }
     withType<JavaCompile> {
         options.encoding = Charsets.UTF_8.name()

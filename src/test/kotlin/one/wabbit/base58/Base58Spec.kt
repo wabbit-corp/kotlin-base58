@@ -6,13 +6,13 @@ import java.util.UUID
 import kotlin.random.Random
 import kotlin.test.*
 
-fun SplittableRandom.nextBytes(size: Int): ByteArray {
-    val bytes = ByteArray(size)
-    nextBytes(bytes)
-    return bytes
-}
-
 class Base58Spec {
+    private fun SplittableRandom.nextBytes(size: Int): ByteArray {
+        val bytes = ByteArray(size)
+        nextBytes(bytes)
+        return bytes
+    }
+
     // Tests from https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json
     @OptIn(ExperimentalStdlibApi::class)
     val TEST_VECTORS = listOf(
