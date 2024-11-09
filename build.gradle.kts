@@ -43,6 +43,7 @@ java {
 tasks {
     withType<Test> {
         jvmArgs("-ea")
+
     }
     withType<JavaCompile> {
         options.encoding = Charsets.UTF_8.name()
