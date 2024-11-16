@@ -1,17 +1,16 @@
 package one.wabbit.base58
 
-import java.io.File
-import java.util.SplittableRandom
-import java.util.UUID
 import kotlin.random.Random
 import kotlin.test.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class Base58Spec {
-    private fun SplittableRandom.nextBytes(size: Int): ByteArray {
-        val bytes = ByteArray(size)
-        nextBytes(bytes)
-        return bytes
-    }
+//    private fun SplittableRandom.nextBytes(size: Int): ByteArray {
+//        val bytes = ByteArray(size)
+//        nextBytes(bytes)
+//        return bytes
+//    }
 
     // Tests from https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json
     @OptIn(ExperimentalStdlibApi::class)
@@ -28,17 +27,17 @@ class Base58Spec {
         "636363".hexToByteArray() to "aPEr",
         "61".hexToByteArray() to "2g",
         "".hexToByteArray() to "",
-        "Hello, world!".toByteArray() to "72k1xXWG59wUsYv7h2",
+        "Hello, world!".encodeToByteArray() to "72k1xXWG59wUsYv7h2",
     )
 
-    @Test fun `encoding known values`() {
+    @Test fun encodingKnownValues() {
         for ((decoded, encoded) in TEST_VECTORS) {
             assertEquals(encoded, Base58.encode(decoded))
             assertContentEquals(decoded, Base58.decode(encoded))
         }
     }
 
-    @Test fun `encoding int16`() {
+    @Test fun encodingInt16() {
         for (i in 1..100) {
             val value = Random.nextInt().toShort()
             val encoded = Base58.encodeShort(value)
@@ -47,7 +46,7 @@ class Base58Spec {
         }
     }
 
-    @Test fun `encoding int32`() {
+    @Test fun encodingInt32() {
         for (i in 1..100) {
             val value = Random.nextInt()
             val encoded = Base58.encodeInt(value)
@@ -56,7 +55,7 @@ class Base58Spec {
         }
     }
 
-    @Test fun `encoding int64`() {
+    @Test fun encodingInt64() {
         for (i in 1..100) {
             val value = Random.nextLong()
             val encoded = Base58.encodeLong(value)
@@ -65,16 +64,17 @@ class Base58Spec {
         }
     }
 
-    @Test fun `encoding UUID`() {
+    @ExperimentalUuidApi
+    @Test fun encodingUUID() {
         for (i in 1..100) {
-            val value = UUID(Random.nextLong(), Random.nextLong())
+            val value = Uuid.fromLongs(Random.nextLong(), Random.nextLong())
             val encoded = Base58.encodeUUID(value)
             val decoded = Base58.decodeUUID(encoded)
             assertEquals(value, decoded)
         }
     }
 
-    @Test fun `encoding byte arrays of different sizes`() {
+    @Test fun encodingByteArraysOfDifferentSizes() {
         // Test with various input sizes
         val inputSizes = listOf(0, 1, 10, 100, 1000)
 
@@ -88,38 +88,38 @@ class Base58Spec {
         }
     }
 
-    @Ignore
-    @Test fun `profiler test`() {
-        val rng = SplittableRandom(0x42)
+//    @Ignore
+//    @Test fun `profiler test`() {
+//        val rng = SplittableRandom(0x42)
+//
+//        // Test with various input sizes
+//        val inputSizes = listOf(0, 1, 10, 100, 1000, 10000)
+//
+//        File("base58_sizes1.csv").printWriter().use { out ->
+//            out.println("size,encoded_size")
+//
+//            for (it in 1..1000) {
+//                val size = rng.nextInt(2000)
+//                val input = rng.nextBytes(size)
+//                val encoded = Base58.encode(input)
+//                val decoded = Base58.decode(encoded)
+//                if (it % 100 == 0) println("$size,${encoded.length}")
+//                out.println("$size,${encoded.length}")
+//            }
+//
+//            for (size in inputSizes) {
+//                for (it in 1..100) {
+//                    val input = rng.nextBytes(size)
+//                    val encoded = Base58.encode(input)
+//                    val decoded = Base58.decode(encoded)
+//                    if (it % 100 == 0) println("$size,${encoded.length}")
+//                    out.println("$size,${encoded.length}")
+//                }
+//            }
+//        }
+//    }
 
-        // Test with various input sizes
-        val inputSizes = listOf(0, 1, 10, 100, 1000, 10000)
-
-        File("base58_sizes1.csv").printWriter().use { out ->
-            out.println("size,encoded_size")
-
-            for (it in 1..1000) {
-                val size = rng.nextInt(2000)
-                val input = rng.nextBytes(size)
-                val encoded = Base58.encode(input)
-                val decoded = Base58.decode(encoded)
-                if (it % 100 == 0) println("$size,${encoded.length}")
-                out.println("$size,${encoded.length}")
-            }
-
-            for (size in inputSizes) {
-                for (it in 1..100) {
-                    val input = rng.nextBytes(size)
-                    val encoded = Base58.encode(input)
-                    val decoded = Base58.decode(encoded)
-                    if (it % 100 == 0) println("$size,${encoded.length}")
-                    out.println("$size,${encoded.length}")
-                }
-            }
-        }
-    }
-
-    @Test fun `encoding byte array with leading zeros`() {
+    @Test fun encodingByteArrayWithLeadingZeros() {
         val input = byteArrayOf(0, 0, 1, 2, 3)
         val encoded = Base58.encode(input)
         val decoded = Base58.decode(encoded)
@@ -127,7 +127,7 @@ class Base58Spec {
         assertTrue(input.contentEquals(decoded), "Decoding the encoded input with leading zeros should match the original input")
     }
 
-    @Test fun `encoding empty byte array`() {
+    @Test fun encodingEmptyByteArray() {
         val input = ByteArray(0)
         val encoded = Base58.encode(input)
         val decoded = Base58.decode(encoded)
@@ -136,7 +136,7 @@ class Base58Spec {
         assertTrue(input.contentEquals(decoded), "Encoding and decoding an empty input should result in an empty output")
     }
 
-    @Test fun `encoding large byte arrays`() {
+    @Test fun encodingLargeByteArrays() {
         val input = Random.nextBytes(10000)
         val encoded = Base58.encode(input)
         val decoded = Base58.decode(encoded)

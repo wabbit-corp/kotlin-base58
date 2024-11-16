@@ -1,8 +1,9 @@
 package one.wabbit.base58
 
-import java.util.*
 import kotlin.math.ceil
 import kotlin.math.ln
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Custom exception for Base58 decoding errors.
@@ -21,7 +22,7 @@ class Base58DecodingException(message: String) : Exception(message)
  * val decoded = Base58.decode(encoded)
  * println(String(decoded)) // Prints: Hello, World!
  *
- * val uuid = UUID.randomUUID()
+ * val uuid = Uuid.random()
  * val encodedUUID = Base58.encodeUUID(uuid)
  * val decodedUUID = Base58.decodeUUID(encodedUUID)
  * println(uuid == decodedUUID) // Prints: true
@@ -77,7 +78,7 @@ object Base58 {
             encoded[outputStart] = ENCODED_ZERO
         }
 
-        return String(encoded, outputStart, encoded.size - outputStart)
+        return encoded.concatToString(outputStart, encoded.size)
     }
 
     /**
@@ -321,24 +322,27 @@ object Base58 {
      * @param uuid The UUID to encode
      * @return The Base58-encoded string
      */
-    fun encodeUUID(uuid: UUID): String {
+    @ExperimentalUuidApi
+    fun encodeUUID(uuid: Uuid): String {
         val bytes = ByteArray(16)
-        bytes[0] = (uuid.mostSignificantBits ushr 56).toByte()
-        bytes[1] = (uuid.mostSignificantBits ushr 48).toByte()
-        bytes[2] = (uuid.mostSignificantBits ushr 40).toByte()
-        bytes[3] = (uuid.mostSignificantBits ushr 32).toByte()
-        bytes[4] = (uuid.mostSignificantBits ushr 24).toByte()
-        bytes[5] = (uuid.mostSignificantBits ushr 16).toByte()
-        bytes[6] = (uuid.mostSignificantBits ushr 8).toByte()
-        bytes[7] = uuid.mostSignificantBits.toByte()
-        bytes[8] = (uuid.leastSignificantBits ushr 56).toByte()
-        bytes[9] = (uuid.leastSignificantBits ushr 48).toByte()
-        bytes[10] = (uuid.leastSignificantBits ushr 40).toByte()
-        bytes[11] = (uuid.leastSignificantBits ushr 32).toByte()
-        bytes[12] = (uuid.leastSignificantBits ushr 24).toByte()
-        bytes[13] = (uuid.leastSignificantBits ushr 16).toByte()
-        bytes[14] = (uuid.leastSignificantBits ushr 8).toByte()
-        bytes[15] = uuid.leastSignificantBits.toByte()
+        uuid.toLongs { mostSignificantBits: Long, leastSignificantBits: Long ->
+            bytes[0] = (mostSignificantBits ushr 56).toByte()
+            bytes[1] = (mostSignificantBits ushr 48).toByte()
+            bytes[2] = (mostSignificantBits ushr 40).toByte()
+            bytes[3] = (mostSignificantBits ushr 32).toByte()
+            bytes[4] = (mostSignificantBits ushr 24).toByte()
+            bytes[5] = (mostSignificantBits ushr 16).toByte()
+            bytes[6] = (mostSignificantBits ushr 8).toByte()
+            bytes[7] = mostSignificantBits.toByte()
+            bytes[8] = (leastSignificantBits ushr 56).toByte()
+            bytes[9] = (leastSignificantBits ushr 48).toByte()
+            bytes[10] = (leastSignificantBits ushr 40).toByte()
+            bytes[11] = (leastSignificantBits ushr 32).toByte()
+            bytes[12] = (leastSignificantBits ushr 24).toByte()
+            bytes[13] = (leastSignificantBits ushr 16).toByte()
+            bytes[14] = (leastSignificantBits ushr 8).toByte()
+            bytes[15] = leastSignificantBits.toByte()
+        }
         return encode(bytes)
     }
 
@@ -349,8 +353,9 @@ object Base58 {
      * @return The decoded UUID
      * @throws Base58DecodingException if the input is invalid or not the correct length
      */
+    @OptIn(ExperimentalUuidApi::class)
     @Throws(Base58DecodingException::class)
-    fun decodeUUID(value: String): UUID {
+    fun decodeUUID(value: String): Uuid {
         val bytes = decode(value)
         if (bytes.size != 16)
             throw Base58DecodingException("Invalid UUID length: ${bytes.size}")
@@ -370,6 +375,6 @@ object Base58 {
                            (bytes[13].toLong() and 0xFF shl 16) or
                            (bytes[14].toLong() and 0xFF shl 8) or
                            (bytes[15].toLong() and 0xFF)
-        return UUID(mostSigBits, leastSigBits)
+        return Uuid.fromLongs(mostSigBits, leastSigBits)
     }
 }

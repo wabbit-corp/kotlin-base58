@@ -1,3 +1,4 @@
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -5,45 +6,64 @@ val DEV: String by project
 
 repositories {
     mavenCentral()
+
+    maven("https://jitpack.io")
 }
 
 group   = "one.wabbit"
-version = "1.0.0"
+version = "1.1.0-SNAPSHOT"
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-
+    kotlin("multiplatform") version "2.0.20"
     id("maven-publish")
 }
 
+kotlin {
+    jvm {
+        java {
+            targetCompatibility = JavaVersion.toVersion(21)
+            sourceCompatibility = JavaVersion.toVersion(21)
+        }
+    }
+    js()
+    linuxX64()
+    mingwX64()
+
+    sourceSets {
+        val commonMain by getting {
+            kotlin.srcDir("src/main/kotlin")
+            resources.srcDir("src/main/resources")
+
+            dependencies {
+
+            }
+        }
+
+        val commonTest by getting {
+            kotlin.srcDir("src/test/kotlin")
+            resources.srcDir("src/test/resources")
+
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+    }
+}
+
 publishing {
-  publications {
-    create<MavenPublication>("maven") {
-      groupId = "one.wabbit"
-      artifactId = "kotlin-base58"
-      version = "1.0.0"
-      from(components["java"])
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "one.wabbit"
+            artifactId = "kotlin-base58"
+            version = "1.0.0"
+            from(components["kotlin"])
+        }
     }
-  }
-}
-
-dependencies {
-    if (DEV == "true") {
-    } else {
-    }
-
-    testImplementation(kotlin("test"))
-}
-
-java {
-    targetCompatibility = JavaVersion.toVersion(21)
-    sourceCompatibility = JavaVersion.toVersion(21)
 }
 
 tasks {
     withType<Test> {
         jvmArgs("-ea")
-
     }
     withType<JavaCompile> {
         options.encoding = Charsets.UTF_8.name()
@@ -59,8 +79,7 @@ tasks {
         }
     }
 
-    jar {
+    withType<Jar> {
         setProperty("zip64", true)
-
     }
 }

@@ -13,8 +13,12 @@ This library provides a simple API for encoding byte arrays, primitives like `Sh
 Add the following dependency to your project:
 
 ```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
 dependencies {
-    implementation("one.wabbit:kotlin-base58:1.0.0")
+    implementation("com.github.wabbit-corp:kotlin-base58:1.0.0")
 }
 ```
 
