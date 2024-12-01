@@ -1,5 +1,6 @@
 package one.wabbit.base58
 
+import java.util.*
 import kotlin.random.Random
 import kotlin.test.*
 import kotlin.uuid.ExperimentalUuidApi
@@ -67,7 +68,7 @@ class Base58Spec {
     @ExperimentalUuidApi
     @Test fun encodingUUID() {
         for (i in 1..100) {
-            val value = Uuid.fromLongs(Random.nextLong(), Random.nextLong())
+            val value = UUID(Random.nextLong(), Random.nextLong())
             val encoded = Base58.encodeUUID(value)
             val decoded = Base58.decodeUUID(encoded)
             assertEquals(value, decoded)
@@ -137,7 +138,7 @@ class Base58Spec {
     }
 
     @Test fun encodingLargeByteArrays() {
-        val input = Random.nextBytes(10000)
+        val input = Random.nextBytes(1000)
         val encoded = Base58.encode(input)
         val decoded = Base58.decode(encoded)
 

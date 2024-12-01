@@ -2,8 +2,8 @@ package one.wabbit.base58
 
 import kotlin.math.ceil
 import kotlin.math.ln
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+
+typealias Uuid = java.util.UUID
 
 /**
  * Custom exception for Base58 decoding errors.
@@ -322,27 +322,26 @@ object Base58 {
      * @param uuid The UUID to encode
      * @return The Base58-encoded string
      */
-    @ExperimentalUuidApi
     fun encodeUUID(uuid: Uuid): String {
         val bytes = ByteArray(16)
-        uuid.toLongs { mostSignificantBits: Long, leastSignificantBits: Long ->
-            bytes[0] = (mostSignificantBits ushr 56).toByte()
-            bytes[1] = (mostSignificantBits ushr 48).toByte()
-            bytes[2] = (mostSignificantBits ushr 40).toByte()
-            bytes[3] = (mostSignificantBits ushr 32).toByte()
-            bytes[4] = (mostSignificantBits ushr 24).toByte()
-            bytes[5] = (mostSignificantBits ushr 16).toByte()
-            bytes[6] = (mostSignificantBits ushr 8).toByte()
-            bytes[7] = mostSignificantBits.toByte()
-            bytes[8] = (leastSignificantBits ushr 56).toByte()
-            bytes[9] = (leastSignificantBits ushr 48).toByte()
-            bytes[10] = (leastSignificantBits ushr 40).toByte()
-            bytes[11] = (leastSignificantBits ushr 32).toByte()
-            bytes[12] = (leastSignificantBits ushr 24).toByte()
-            bytes[13] = (leastSignificantBits ushr 16).toByte()
-            bytes[14] = (leastSignificantBits ushr 8).toByte()
-            bytes[15] = leastSignificantBits.toByte()
-        }
+        val mostSignificantBits = uuid.mostSignificantBits
+        val leastSignificantBits = uuid.leastSignificantBits
+        bytes[0] = (mostSignificantBits ushr 56).toByte()
+        bytes[1] = (mostSignificantBits ushr 48).toByte()
+        bytes[2] = (mostSignificantBits ushr 40).toByte()
+        bytes[3] = (mostSignificantBits ushr 32).toByte()
+        bytes[4] = (mostSignificantBits ushr 24).toByte()
+        bytes[5] = (mostSignificantBits ushr 16).toByte()
+        bytes[6] = (mostSignificantBits ushr 8).toByte()
+        bytes[7] = mostSignificantBits.toByte()
+        bytes[8] = (leastSignificantBits ushr 56).toByte()
+        bytes[9] = (leastSignificantBits ushr 48).toByte()
+        bytes[10] = (leastSignificantBits ushr 40).toByte()
+        bytes[11] = (leastSignificantBits ushr 32).toByte()
+        bytes[12] = (leastSignificantBits ushr 24).toByte()
+        bytes[13] = (leastSignificantBits ushr 16).toByte()
+        bytes[14] = (leastSignificantBits ushr 8).toByte()
+        bytes[15] = leastSignificantBits.toByte()
         return encode(bytes)
     }
 
@@ -353,7 +352,6 @@ object Base58 {
      * @return The decoded UUID
      * @throws Base58DecodingException if the input is invalid or not the correct length
      */
-    @OptIn(ExperimentalUuidApi::class)
     @Throws(Base58DecodingException::class)
     fun decodeUUID(value: String): Uuid {
         val bytes = decode(value)
@@ -375,6 +373,6 @@ object Base58 {
                            (bytes[13].toLong() and 0xFF shl 16) or
                            (bytes[14].toLong() and 0xFF shl 8) or
                            (bytes[15].toLong() and 0xFF)
-        return Uuid.fromLongs(mostSigBits, leastSigBits)
+        return Uuid(mostSigBits, leastSigBits)
     }
 }
