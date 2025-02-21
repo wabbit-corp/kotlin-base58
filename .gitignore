@@ -1,6 +1,9 @@
 .DS_Store
 Thumbs.db
 
+/.is-dev-mode
+/.is-ij-mode
+
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -37,6 +40,3 @@ bin/
 /dist/
 /nbdist/
 /.nb-gradle/
-
-/.is-dev-mode
-/.is-ij-mode
