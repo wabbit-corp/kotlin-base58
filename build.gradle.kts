@@ -11,7 +11,7 @@ group   = "one.wabbit"
 version = "1.1.1"
 
 plugins {
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.1.20"
 
     id("maven-publish")
 }
