@@ -28,13 +28,13 @@ Import the `Base58` object to access the encoding and decoding functions:
 import one.wabbit.base58.Base58
 
 // Encode a byte array
-val bytes = "Hello, World!".toByteArray()
+val bytes = "Hello, world!".toByteArray()
 val encoded = Base58.encode(bytes)
-println(encoded) // Prints: 2NEpo7TZRRrLZSi2U
+println(encoded) // Prints: "72k1xXWG59wUsYv7h2"
 
 // Decode a Base58 string
-val decoded = Base58.decode("2NEpo7TZRRrLZSi2U")
-println(String(decoded)) // Prints: Hello, World!
+val decoded = Base58.decode("72k1xXWG59wUsYv7h2")
+println(String(decoded)) // Prints: Hello, world!
 
 // Encode and decode primitives
 val encodedInt = Base58.encodeInt(42)
