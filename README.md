@@ -42,7 +42,7 @@ val decodedInt = Base58.decodeInt(encodedInt)
 println(decodedInt) // Prints: 42
 
 val uuid = UUID.randomUUID()
-val encodedUUID = Base58.encodeUUID(uuid) 
+val encodedUUID = Base58.encodeUUID(uuid)
 val decodedUUID = Base58.decodeUUID(encodedUUID)
 println(uuid == decodedUUID) // Prints: true
 ```

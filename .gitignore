@@ -4,13 +4,13 @@ Thumbs.db
 /.is-dev-mode
 /.is-ij-mode
 
-.gradle
-build/
+/.gradle
+/build
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-.kotlin/
-kotlin-js-store/
+/.kotlin
+/kotlin-js-store
 local.properties
 
 ### IntelliJ IDEA ###
