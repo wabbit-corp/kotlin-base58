@@ -1,4 +1,16 @@
-# kotlin-base58
+![](./.banner.png)
+
+<p align=center>
+    <a href="https://jitpack.io/#wabbit-corp/kotlin-base58/"><img src="https://jitpack.io/v/wabbit-corp/kotlin-base58.svg" alt="Release"></a>
+    <a href="https://jitpack.io/#wabbit-corp/kotlin-base58/"><img src="https://jitpack.io/v/wabbit-corp/kotlin-base58/month.svg" alt="Monthly download statistics"></a>
+</p>
+
+<p align=center>
+    <a href="https://github.com/wabbit-corp/kotlin-base58/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/wabbit-corp/kotlin-base58" alt="License"></a>
+    <a href="https://github.com/wabbit-corp/kotlin-base58"><img src="https://img.shields.io/github/languages/top/wabbit-corp/kotlin-base58" alt="GitHub top language"></a>
+</p>
+
+---
 
 A Kotlin library for encoding and decoding data using Base58.
 
