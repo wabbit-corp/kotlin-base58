@@ -1,4 +1,4 @@
-![](./.banner.png)
+<p align=center><img src=".banner.png"/></p>
 
 <p align=center>
     <a href="https://jitpack.io/#wabbit-corp/kotlin-base58/"><img src="https://jitpack.io/v/wabbit-corp/kotlin-base58.svg" alt="Release"></a>
