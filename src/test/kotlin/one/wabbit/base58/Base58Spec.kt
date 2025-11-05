@@ -14,6 +14,7 @@ class Base58Spec {
 //    }
 
     // Tests from https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json
+    // <NO_ENTROPY_CHECK>
     @OptIn(ExperimentalStdlibApi::class)
     val TEST_VECTORS = listOf(
         "00eb15231dfceb60925886b67d065299925915aeb172c06647".hexToByteArray() to "1NS17iag9jJgTHD1VXjvLCEnZuQ3rJDE9L",
@@ -30,6 +31,7 @@ class Base58Spec {
         "".hexToByteArray() to "",
         "Hello, world!".encodeToByteArray() to "72k1xXWG59wUsYv7h2",
     )
+    // </NO_ENTROPY_CHECK>
 
     @Test fun encodingKnownValues() {
         for ((decoded, encoded) in TEST_VECTORS) {

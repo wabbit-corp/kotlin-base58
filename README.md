@@ -1,4 +1,6 @@
+<!-- BANNER -->
 <p align=center><img src=".banner.png"/></p>
+<!-- /BANNER -->
 
 <p align=center>
     <a href="https://jitpack.io/#wabbit-corp/kotlin-base58/"><img src="https://jitpack.io/v/wabbit-corp/kotlin-base58.svg" alt="Release"></a>
@@ -12,6 +14,7 @@
 
 ---
 
+<!-- ELEVATOR PITCH START -->
 A Kotlin library for encoding and decoding data using Base58.
 
 ## Overview
