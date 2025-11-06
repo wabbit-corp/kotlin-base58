@@ -5,9 +5,7 @@ import kotlin.math.ln
 
 typealias Uuid = java.util.UUID
 
-/**
- * Custom exception for Base58 decoding errors.
- */
+/** Custom exception for Base58 decoding errors. */
 class Base58DecodingException(message: String) : Exception(message)
 
 /**
@@ -146,7 +144,7 @@ object Base58 {
 
         val restStart = size - (size - startIndex) % 4
 
-        for (i in startIndex ..< restStart step 4) {
+        for (i in startIndex..<restStart step 4) {
             val d1 = digits[i].toLong() and 0xFF
             val d2 = digits[i + 1].toLong() and 0xFF
             val d3 = digits[i + 2].toLong() and 0xFF
@@ -160,7 +158,7 @@ object Base58 {
             remainder = temp - quotient * 58
         }
 
-        for (i in restStart ..< size) {
+        for (i in restStart..<size) {
             val digit = digits[i].toInt() and 0xFF
             val temp = (remainder shl 8) + digit
             val quotient = temp / 58
@@ -183,7 +181,7 @@ object Base58 {
 
         val restStart = size - (size - startIndex) % 4
 
-        for (i in startIndex ..< restStart step 4) {
+        for (i in startIndex..<restStart step 4) {
             val d1 = digits[i].toLong() and 0xFF
             val d2 = digits[i + 1].toLong() and 0xFF
             val d3 = digits[i + 2].toLong() and 0xFF
@@ -195,7 +193,7 @@ object Base58 {
             val n2 = (quotient % P58_3) / P58_2
             val n3 = (quotient % P58_2) / P58_1
             val n4 = quotient % P58_1
-            digits[i]     = n1.toByte()
+            digits[i] = n1.toByte()
             digits[i + 1] = n2.toByte()
             digits[i + 2] = n3.toByte()
             digits[i + 3] = n4.toByte()
@@ -203,7 +201,7 @@ object Base58 {
             remainder = temp and 0xFFFFL
         }
 
-        for (i in restStart ..< size) {
+        for (i in restStart..<size) {
             val digit = digits[i].toInt() and 0xFF
             val temp = remainder * P58_1 + digit * P58_0
             val quotient = temp ushr 16
@@ -237,8 +235,9 @@ object Base58 {
     @Throws(Base58DecodingException::class)
     fun decodeShort(value: String): Short {
         val bytes = decode(value)
-        if (bytes.size != 2)
+        if (bytes.size != 2) {
             throw Base58DecodingException("Invalid Short length: ${bytes.size}")
+        }
         return ((bytes[0].toInt() and 0xFF shl 8) or (bytes[1].toInt() and 0xFF)).toShort()
     }
 
@@ -267,12 +266,13 @@ object Base58 {
     @Throws(Base58DecodingException::class)
     fun decodeInt(value: String): Int {
         val bytes = decode(value)
-        if (bytes.size != 4)
+        if (bytes.size != 4) {
             throw Base58DecodingException("Invalid Int length: ${bytes.size}")
+        }
         return (bytes[0].toInt() and 0xFF shl 24) or
-               (bytes[1].toInt() and 0xFF shl 16) or
-               (bytes[2].toInt() and 0xFF shl 8) or
-               (bytes[3].toInt() and 0xFF)
+            (bytes[1].toInt() and 0xFF shl 16) or
+            (bytes[2].toInt() and 0xFF shl 8) or
+            (bytes[3].toInt() and 0xFF)
     }
 
     /**
@@ -304,16 +304,17 @@ object Base58 {
     @Throws(Base58DecodingException::class)
     fun decodeLong(value: String): Long {
         val bytes = decode(value)
-        if (bytes.size != 8)
+        if (bytes.size != 8) {
             throw Base58DecodingException("Invalid Long length: ${bytes.size}")
+        }
         return (bytes[0].toLong() and 0xFF shl 56) or
-               (bytes[1].toLong() and 0xFF shl 48) or
-               (bytes[2].toLong() and 0xFF shl 40) or
-               (bytes[3].toLong() and 0xFF shl 32) or
-               (bytes[4].toLong() and 0xFF shl 24) or
-               (bytes[5].toLong() and 0xFF shl 16) or
-               (bytes[6].toLong() and 0xFF shl 8) or
-               (bytes[7].toLong() and 0xFF)
+            (bytes[1].toLong() and 0xFF shl 48) or
+            (bytes[2].toLong() and 0xFF shl 40) or
+            (bytes[3].toLong() and 0xFF shl 32) or
+            (bytes[4].toLong() and 0xFF shl 24) or
+            (bytes[5].toLong() and 0xFF shl 16) or
+            (bytes[6].toLong() and 0xFF shl 8) or
+            (bytes[7].toLong() and 0xFF)
     }
 
     /**
@@ -355,24 +356,27 @@ object Base58 {
     @Throws(Base58DecodingException::class)
     fun decodeUUID(value: String): Uuid {
         val bytes = decode(value)
-        if (bytes.size != 16)
+        if (bytes.size != 16) {
             throw Base58DecodingException("Invalid UUID length: ${bytes.size}")
-        val mostSigBits = (bytes[0].toLong() and 0xFF shl 56) or
-                          (bytes[1].toLong() and 0xFF shl 48) or
-                          (bytes[2].toLong() and 0xFF shl 40) or
-                          (bytes[3].toLong() and 0xFF shl 32) or
-                          (bytes[4].toLong() and 0xFF shl 24) or
-                          (bytes[5].toLong() and 0xFF shl 16) or
-                          (bytes[6].toLong() and 0xFF shl 8) or
-                          (bytes[7].toLong() and 0xFF)
-        val leastSigBits = (bytes[8].toLong() and 0xFF shl 56) or
-                           (bytes[9].toLong() and 0xFF shl 48) or
-                           (bytes[10].toLong() and 0xFF shl 40) or
-                           (bytes[11].toLong() and 0xFF shl 32) or
-                           (bytes[12].toLong() and 0xFF shl 24) or
-                           (bytes[13].toLong() and 0xFF shl 16) or
-                           (bytes[14].toLong() and 0xFF shl 8) or
-                           (bytes[15].toLong() and 0xFF)
+        }
+        val mostSigBits =
+            (bytes[0].toLong() and 0xFF shl 56) or
+                (bytes[1].toLong() and 0xFF shl 48) or
+                (bytes[2].toLong() and 0xFF shl 40) or
+                (bytes[3].toLong() and 0xFF shl 32) or
+                (bytes[4].toLong() and 0xFF shl 24) or
+                (bytes[5].toLong() and 0xFF shl 16) or
+                (bytes[6].toLong() and 0xFF shl 8) or
+                (bytes[7].toLong() and 0xFF)
+        val leastSigBits =
+            (bytes[8].toLong() and 0xFF shl 56) or
+                (bytes[9].toLong() and 0xFF shl 48) or
+                (bytes[10].toLong() and 0xFF shl 40) or
+                (bytes[11].toLong() and 0xFF shl 32) or
+                (bytes[12].toLong() and 0xFF shl 24) or
+                (bytes[13].toLong() and 0xFF shl 16) or
+                (bytes[14].toLong() and 0xFF shl 8) or
+                (bytes[15].toLong() and 0xFF)
         return Uuid(mostSigBits, leastSigBits)
     }
 }
