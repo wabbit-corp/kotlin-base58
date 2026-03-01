@@ -27,9 +27,10 @@ class Base58DecodingException(message: String) : Exception(message)
  * ```
  */
 object Base58 {
+    const val alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
     private const val ENCODED_ZERO = '1'
-    private const val ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-    private val INDICES = IntArray(128) { ALPHABET.indexOf(it.toChar()) }
+    private val INDICES = IntArray(128) { alphabet.indexOf(it.toChar()) }
     private val K = ln(256.0) / ln(58.0)
 
     /**
@@ -61,7 +62,7 @@ object Base58 {
             outputStart -= 1
             // Perform the division in-place.
             val remainder = divmod_256_58(inputCopy, inputStart)
-            encoded[outputStart] = ALPHABET[remainder.toInt()]
+            encoded[outputStart] = alphabet[remainder.toInt()]
             while (inputStart < inputSize && inputCopy[inputStart].toInt() == 0) {
                 inputStart += 1
             }

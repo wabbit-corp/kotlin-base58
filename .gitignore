@@ -2,6 +2,7 @@
 Thumbs.db
 
 /.is-dev-mode
+/.is-local-mode
 /.is-ij-mode
 
 /.gradle
