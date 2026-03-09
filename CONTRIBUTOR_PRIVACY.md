@@ -83,7 +83,7 @@ We may update this policy from time to time. We will notify you of any significa
 
 ## 11. Contact Us
 
-If you have any questions about this policy or our privacy practices, please contact us at .
+If you have any questions about this policy or our privacy practices, please contact us at wabbit@wabbit.one.
 
 ## 12. Consent
 
@@ -91,7 +91,7 @@ By contributing to our projects, you consent to the collection, use, and sharing
 
 ## 13. Cookies and Tracking Technologies
 
-We may use cookies and similar tracking technologies to enhance your experience on our websites. For detailed information on the cookies we use and your choices regarding cookies, please refer to our Cookie Policy [insert link].
+We may use cookies and similar tracking technologies to operate and improve our websites. If we introduce non-essential cookies or similar technologies, we will update this policy before enabling them and will describe the choices available to you. If you have questions about cookies or tracking technologies, please contact us at wabbit@wabbit.one.
 
 ## 14. California Privacy Rights
 

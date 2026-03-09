@@ -90,11 +90,13 @@ dokka {
     }
     dokkaSourceSets.main {
         // includes.from("README.md")
+
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
-            remoteUrl("https://example.com/src")
+            remoteUrl("https://github.com/wabbit-corp/kotlin-base58/tree/master/src/main/kotlin")
             remoteLineSuffix.set("#L")
         }
+
     }
     pluginsConfiguration.html {
         // customStyleSheets.from("styles.css")

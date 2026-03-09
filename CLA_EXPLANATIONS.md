@@ -82,7 +82,7 @@ This means we can use your contributions, but you still have control over your o
 
 When you contribute to our project:
 
-1. We can use your work in different ways, including in open-source and commercial versions of our project.
+1. We can use your work in different ways, including in versions of our project released under the current primary project license, GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later), as well as other open-source and commercial versions.
 2. We might change the license for the project in the future, but we'll respect the terms under which you originally contributed.
 3. Right now, we promise to keep the main project open-source, but this might change in the future.
 
