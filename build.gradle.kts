@@ -153,7 +153,7 @@ dokka {
         failOnWarning.set(true)
     }
     dokkaSourceSets.main {
-        // includes.from("README.md")
+        includes.from("docs/dokka-module.md")
 
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))

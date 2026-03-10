@@ -1,79 +1,111 @@
-<!-- BANNER -->
-<p align=center><img src=".banner.png"/></p>
-<!-- /BANNER -->
+# kotlin-base58
 
-<p align=center>
-    <a href="https://jitpack.io/#wabbit-corp/kotlin-base58/"><img src="https://jitpack.io/v/wabbit-corp/kotlin-base58.svg" alt="Release"></a>
-    <a href="https://jitpack.io/#wabbit-corp/kotlin-base58/"><img src="https://jitpack.io/v/wabbit-corp/kotlin-base58/month.svg" alt="Monthly download statistics"></a>
-</p>
+`kotlin-base58` is a JVM library for encoding binary data as compact, human-friendly Base58 strings and decoding those strings back to bytes or typed values.
 
-<p align=center>
-    <a href="https://github.com/wabbit-corp/kotlin-base58/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/wabbit-corp/kotlin-base58" alt="License"></a>
-    <a href="https://github.com/wabbit-corp/kotlin-base58"><img src="https://img.shields.io/github/languages/top/wabbit-corp/kotlin-base58" alt="GitHub top language"></a>
-</p>
+It is designed for cases where hexadecimal is too long and Base64 is too punctuation-heavy, especially for IDs that humans may need to read, paste, or type.
 
----
+## Why Base58
 
-<!-- ELEVATOR PITCH START -->
-A Kotlin library for encoding and decoding data using Base58.
+The Base58 alphabet removes visually ambiguous characters:
 
-## Overview
+- `0`
+- `O`
+- `I`
+- `l`
 
-Base58 is a binary-to-text encoding scheme that represents binary data using an alphabet of 58 characters. It excludes easily confused characters like `0`, `O`, `I`, and `l` to improve human readability and prevent errors when manually typing the encoded data.
+That makes it useful for invitation codes, external IDs, short opaque tokens, and UUID-like values that should stay copyable without looking noisy.
 
-This library provides a simple API for encoding byte arrays, primitives like `Short`, `Int`, `Long`, and `UUID` to Base58 strings, and decoding Base58 strings back to the original data types.
+This library implements plain Base58 encoding. It does not implement Base58Check or any checksum-bearing Bitcoin-specific format.
 
 ## Installation
 
-Add the following dependency to your project:
-
 ```kotlin
 repositories {
-    maven("https://jitpack.io")
+    mavenCentral()
 }
 
 dependencies {
-    implementation("com.github.wabbit-corp:kotlin-base58:1.0.0")
+    implementation("one.wabbit:kotlin-base58:1.1.1")
 }
 ```
 
-## Usage
-Import the `Base58` object to access the encoding and decoding functions:
+## Byte Array Example
+
 ```kotlin
 import one.wabbit.base58.Base58
 
-// Encode a byte array
-val bytes = "Hello, world!".toByteArray()
+val payload = "Hello, world!".encodeToByteArray()
+val encoded = Base58.encode(payload)
+val decoded = Base58.decode(encoded).decodeToString()
+
+check(encoded == "72k1xXWG59wUsYv7h2")
+check(decoded == "Hello, world!")
+```
+
+## Primitive Helpers
+
+The library also supports typed helpers for fixed-width values:
+
+```kotlin
+import one.wabbit.base58.Base58
+
+val orderId = 42
+val encodedOrderId = Base58.encodeInt(orderId)
+val decodedOrderId = Base58.decodeInt(encodedOrderId)
+
+check(decodedOrderId == orderId)
+```
+
+These helpers use big-endian byte order, which keeps the encoding deterministic across JVMs and interoperable with non-Kotlin implementations that use the same convention.
+
+## UUID Example
+
+```kotlin
+import one.wabbit.base58.Base58
+import java.util.UUID
+
+val sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
+val encodedSessionId = Base58.encodeUUID(sessionId)
+val decodedSessionId = Base58.decodeUUID(encodedSessionId)
+
+check(decodedSessionId == sessionId)
+```
+
+## Leading Zeros
+
+Leading zero bytes are preserved. That matters when you are encoding binary identifiers instead of text:
+
+```kotlin
+import one.wabbit.base58.Base58
+
+val bytes = byteArrayOf(0, 0, 1, 2, 3)
 val encoded = Base58.encode(bytes)
-println(encoded) // Prints: "72k1xXWG59wUsYv7h2"
+val decoded = Base58.decode(encoded)
 
-// Decode a Base58 string
-val decoded = Base58.decode("72k1xXWG59wUsYv7h2")
-println(String(decoded)) // Prints: Hello, world!
-
-// Encode and decode primitives
-val encodedInt = Base58.encodeInt(42)
-val decodedInt = Base58.decodeInt(encodedInt)
-println(decodedInt) // Prints: 42
-
-val uuid = UUID.randomUUID()
-val encodedUUID = Base58.encodeUUID(uuid)
-val decodedUUID = Base58.decodeUUID(encodedUUID)
-println(uuid == decodedUUID) // Prints: true
+check(decoded.contentEquals(bytes))
 ```
 
 ## Error Handling
-The `decode` functions throw a `Base58DecodingException` if the input string contains invalid characters or the decoded data does not match the expected type (e.g., wrong length for `UUID`).
 
-## Performance
-The library is optimized for performance and can encode and decode large amounts of data quickly.
+`Base58.decode` and the typed decode helpers throw `Base58DecodingException` when:
+
+- the input contains characters outside the Base58 alphabet
+- the decoded byte length does not match the requested target type
+
+For example, `decodeUUID` rejects values that do not decode to exactly 16 bytes.
+
+## API Reference
+
+Published API docs are available at:
+
+- [https://wabbit-corp.github.io/kotlin-base58/](https://wabbit-corp.github.io/kotlin-base58/)
 
 ## Licensing
 
 This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) for open source use.
 
-For commercial use, please contact Wabbit Consulting Corporation (at wabbit@wabbit.one) for licensing terms.
+For commercial use, contact Wabbit Consulting Corporation at `wabbit@wabbit.one`.
 
 ## Contributing
 
-Before we can accept your contributions, we kindly ask you to agree to our Contributor License Agreement (CLA).
+Before contributions can be merged, contributors need to agree to the repository CLA.

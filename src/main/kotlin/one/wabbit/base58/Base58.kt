@@ -5,28 +5,38 @@ import kotlin.math.ln
 
 typealias Uuid = java.util.UUID
 
-/** Custom exception for Base58 decoding errors. */
+/**
+ * Thrown when a Base58 value cannot be decoded.
+ *
+ * This covers both malformed input, such as characters outside the Base58 alphabet,
+ * and typed decode mismatches such as decoding a non-UUID string with [Base58.decodeUUID].
+ */
 class Base58DecodingException(message: String) : Exception(message)
 
 /**
  * Provides Base58 encoding and decoding functionality.
  *
- * Base58 is a binary-to-text encoding scheme that's similar to Base64 but uses a smaller alphabet.
- * It excludes easily-confused characters (0, O, I, l) and non-alphanumeric characters.
+ * Base58 is a binary-to-text encoding scheme that avoids visually ambiguous characters such as
+ * `0`, `O`, `I`, and `l`.
+ *
+ * Use it when you want compact, human-facing identifiers without punctuation-heavy encodings.
+ * This implementation handles raw byte arrays as well as fixed-width helpers for [Short], [Int],
+ * [Long], and [Uuid].
  *
  * Example usage:
  * ```
- * val encoded = Base58.encode("Hello, World!".toByteArray())
+ * val encoded = Base58.encode("Hello, world!".encodeToByteArray())
  * val decoded = Base58.decode(encoded)
- * println(String(decoded)) // Prints: Hello, World!
+ * println(decoded.decodeToString()) // Prints: Hello, world!
  *
- * val uuid = Uuid.random()
+ * val uuid = java.util.UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
  * val encodedUUID = Base58.encodeUUID(uuid)
  * val decodedUUID = Base58.decodeUUID(encodedUUID)
  * println(uuid == decodedUUID) // Prints: true
  * ```
  */
 object Base58 {
+    /** The alphabet used by this implementation, in digit order. */
     const val alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
     private const val ENCODED_ZERO = '1'
@@ -36,8 +46,16 @@ object Base58 {
     /**
      * Encodes a byte array as a Base58 string.
      *
-     * @param input The byte array to encode
-     * @return The Base58-encoded string
+     * Leading zero bytes are preserved and become leading `1` characters in the encoded output.
+     *
+     * Example:
+     * ```
+     * val encoded = Base58.encode("Hello, world!".encodeToByteArray())
+     * check(encoded == "72k1xXWG59wUsYv7h2")
+     * ```
+     *
+     * @param input The byte array to encode.
+     * @return The Base58-encoded string.
      * @throws IllegalArgumentException if the input is too large to safely process
      */
     fun encode(input: ByteArray): String {
@@ -83,8 +101,14 @@ object Base58 {
     /**
      * Decodes a Base58 string into a byte array.
      *
-     * @param input The Base58-encoded string to decode
-     * @return The decoded byte array
+     * Example:
+     * ```
+     * val decoded = Base58.decode("72k1xXWG59wUsYv7h2")
+     * check(decoded.decodeToString() == "Hello, world!")
+     * ```
+     *
+     * @param input The Base58-encoded string to decode.
+     * @return The decoded byte array.
      * @throws Base58DecodingException if the input is not a valid Base58 string
      */
     @Throws(Base58DecodingException::class)
@@ -216,8 +240,10 @@ object Base58 {
     /**
      * Encodes a Short as a Base58 string.
      *
-     * @param value The Short value to encode
-     * @return The Base58-encoded string
+     * Values are encoded using big-endian byte order.
+     *
+     * @param value The [Short] value to encode.
+     * @return The Base58-encoded string.
      */
     fun encodeShort(value: Short): String {
         val bytes = ByteArray(2)
@@ -229,8 +255,8 @@ object Base58 {
     /**
      * Decodes a Base58 string into a Short.
      *
-     * @param value The Base58-encoded string to decode
-     * @return The decoded Short value
+     * @param value The Base58-encoded string to decode.
+     * @return The decoded [Short] value.
      * @throws Base58DecodingException if the input is invalid or not the correct length
      */
     @Throws(Base58DecodingException::class)
@@ -245,8 +271,16 @@ object Base58 {
     /**
      * Encodes an Int as a Base58 string.
      *
-     * @param value The Int value to encode
-     * @return The Base58-encoded string
+     * Values are encoded using big-endian byte order.
+     *
+     * Example:
+     * ```
+     * val encoded = Base58.encodeInt(42)
+     * check(Base58.decodeInt(encoded) == 42)
+     * ```
+     *
+     * @param value The [Int] value to encode.
+     * @return The Base58-encoded string.
      */
     fun encodeInt(value: Int): String {
         val bytes = ByteArray(4)
@@ -260,8 +294,8 @@ object Base58 {
     /**
      * Decodes a Base58 string into an Int.
      *
-     * @param value The Base58-encoded string to decode
-     * @return The decoded Int value
+     * @param value The Base58-encoded string to decode.
+     * @return The decoded [Int] value.
      * @throws Base58DecodingException if the input is invalid or not the correct length
      */
     @Throws(Base58DecodingException::class)
@@ -279,8 +313,10 @@ object Base58 {
     /**
      * Encodes a Long as a Base58 string.
      *
-     * @param value The Long value to encode
-     * @return The Base58-encoded string
+     * Values are encoded using big-endian byte order.
+     *
+     * @param value The [Long] value to encode.
+     * @return The Base58-encoded string.
      */
     fun encodeLong(value: Long): String {
         val bytes = ByteArray(8)
@@ -298,8 +334,8 @@ object Base58 {
     /**
      * Decodes a Base58 string into a Long.
      *
-     * @param value The Base58-encoded string to decode
-     * @return The decoded Long value
+     * @param value The Base58-encoded string to decode.
+     * @return The decoded [Long] value.
      * @throws Base58DecodingException if the input is invalid or not the correct length
      */
     @Throws(Base58DecodingException::class)
@@ -321,8 +357,15 @@ object Base58 {
     /**
      * Encodes a UUID as a Base58 string.
      *
-     * @param uuid The UUID to encode
-     * @return The Base58-encoded string
+     * Example:
+     * ```
+     * val uuid = java.util.UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
+     * val encoded = Base58.encodeUUID(uuid)
+     * check(Base58.decodeUUID(encoded) == uuid)
+     * ```
+     *
+     * @param uuid The [Uuid] to encode.
+     * @return The Base58-encoded string.
      */
     fun encodeUUID(uuid: Uuid): String {
         val bytes = ByteArray(16)
@@ -350,8 +393,8 @@ object Base58 {
     /**
      * Decodes a Base58 string into a UUID.
      *
-     * @param value The Base58-encoded string to decode
-     * @return The decoded UUID
+     * @param value The Base58-encoded string to decode.
+     * @return The decoded [Uuid].
      * @throws Base58DecodingException if the input is invalid or not the correct length
      */
     @Throws(Base58DecodingException::class)
