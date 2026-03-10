@@ -33,7 +33,7 @@ jobs:
       - name: Detect snapshot version
         id: snapshot_version
         run: |
-          VERSIONS="$(./gradlew --no-daemon printVersion)"
+          VERSIONS="$(./gradlew --quiet --no-daemon printVersion)"
           VERSIONS="$(printf '%s\n' "${VERSIONS}" | sed '/^[[:space:]]*$/d' | sort -u)"
           test -n "${VERSIONS}"
           printf 'versions<<EOF\n%s\nEOF\n' "${VERSIONS}" >> "$GITHUB_OUTPUT"
