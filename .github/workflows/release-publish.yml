@@ -32,7 +32,8 @@ jobs:
       - name: Assert annotated release tag
         if: github.event_name == 'push'
         run: |
-          TAG_TYPE="$(git cat-file -t "${GITHUB_REF_NAME}")"
+          git fetch --force --tags origin
+          TAG_TYPE="$(git for-each-ref "refs/tags/${GITHUB_REF_NAME}" --format='%(objecttype)')"
           test "${TAG_TYPE}" = "tag"
 
       - name: Validate release version
