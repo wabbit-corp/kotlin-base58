@@ -43,7 +43,7 @@ jobs:
         if: github.event_name == 'push'
         run: |
           EXPECTED_VERSION="${GITHUB_REF_NAME#v}"
-          ACTUAL_VERSIONS="$(./gradlew --no-daemon printVersion)"
+          ACTUAL_VERSIONS="$(./gradlew --quiet --no-daemon printVersion)"
           ACTUAL_VERSIONS="$(printf '%s\n' "${ACTUAL_VERSIONS}" | sed '/^[[:space:]]*$/d')"
           UNIQUE_VERSIONS="$(printf '%s\n' "${ACTUAL_VERSIONS}" | sort -u)"
           test "$(printf '%s\n' "${UNIQUE_VERSIONS}" | wc -l | tr -d ' ')" = "1"
