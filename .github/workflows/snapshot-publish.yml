@@ -30,7 +30,34 @@ jobs:
       - name: Ensure Gradle wrapper is executable
         run: chmod +x ./gradlew
 
+      - name: Detect snapshot version
+        id: snapshot_version
+        run: |
+          VERSIONS="$(./gradlew --no-daemon printVersion)"
+          VERSIONS="$(printf '%s\n' "${VERSIONS}" | sed '/^[[:space:]]*$/d' | sort -u)"
+          test -n "${VERSIONS}"
+          printf 'versions<<EOF\n%s\nEOF\n' "${VERSIONS}" >> "$GITHUB_OUTPUT"
+
+          IS_SNAPSHOT=true
+          while IFS= read -r version; do
+            if [ -n "${version}" ] && ! printf '%s' "${version}" | grep -qE '\+dev-SNAPSHOT$'; then
+              IS_SNAPSHOT=false
+              break
+            fi
+          done <<EOF
+          ${VERSIONS}
+          EOF
+
+          echo "is_snapshot=${IS_SNAPSHOT}" >> "$GITHUB_OUTPUT"
+
+      - name: Skip snapshot publish for release version
+        if: github.event_name == 'push' && steps.snapshot_version.outputs.is_snapshot != 'true'
+        run: |
+          echo "Skipping snapshot publish for non-snapshot version(s):"
+          printf '%s\n' "${{ steps.snapshot_version.outputs.versions }}"
+
       - name: Publish snapshot to Maven Central
+        if: github.event_name == 'workflow_dispatch' || steps.snapshot_version.outputs.is_snapshot == 'true'
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_PASSWORD }}
