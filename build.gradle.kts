@@ -153,7 +153,10 @@ dokka {
         failOnWarning.set(true)
     }
     dokkaSourceSets.main {
-        includes.from("docs/dokka-module.md")
+        val dokkaModuleFile = file("docs/dokka-module.md")
+        if (dokkaModuleFile.exists()) {
+            includes.from(dokkaModuleFile)
+        }
 
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
