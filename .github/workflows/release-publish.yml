@@ -1,0 +1,63 @@
+name: Release Publish
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: corretto
+          java-version: "21"
+          cache: gradle
+
+
+      - name: Ensure Gradle wrapper is executable
+        run: chmod +x ./gradlew
+
+      - name: Assert annotated release tag
+        if: github.event_name == 'push'
+        run: |
+          TAG_TYPE="$(git cat-file -t "${GITHUB_REF_NAME}")"
+          test "${TAG_TYPE}" = "tag"
+
+      - name: Validate release version
+        run: ./gradlew --no-daemon assertReleaseVersion
+
+      - name: Match tag to published version
+        if: github.event_name == 'push'
+        run: |
+          EXPECTED_VERSION="${GITHUB_REF_NAME#v}"
+          ACTUAL_VERSIONS="$(./gradlew --no-daemon printVersion)"
+          ACTUAL_VERSIONS="$(printf '%s\n' "${ACTUAL_VERSIONS}" | sed '/^[[:space:]]*$/d')"
+          UNIQUE_VERSIONS="$(printf '%s\n' "${ACTUAL_VERSIONS}" | sort -u)"
+          test "$(printf '%s\n' "${UNIQUE_VERSIONS}" | wc -l | tr -d ' ')" = "1"
+          test "${UNIQUE_VERSIONS}" = "${EXPECTED_VERSION}"
+
+      - name: Dry run release build
+        if: github.event_name == 'workflow_dispatch'
+        run: ./gradlew --no-daemon build
+
+      - name: Publish release to Maven Central
+        if: github.event_name == 'push'
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.MAVEN_GPG_KEY_ID }}
+        run: ./gradlew --no-daemon build publishAndReleaseToMavenCentral

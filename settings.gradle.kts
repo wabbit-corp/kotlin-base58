@@ -27,8 +27,14 @@ pluginManagement {
         id("com.gradleup.shadow") version "8.3.0"
         id("org.jetbrains.dokka") version "2.0.0"
         id("org.jetbrains.kotlinx.kover") version "0.9.3"
+        id("com.vanniktech.maven.publish") version "0.36.0"
         id("org.jetbrains.intellij") version "1.17.2"
         id("io.papermc.paperweight.userdev") version "1.7.2"
         id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
     }
+}
+
+val localSettingsFile = file("settings.local.gradle.kts")
+if (localSettingsFile.isFile) {
+    apply(from = localSettingsFile)
 }

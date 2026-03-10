@@ -1,10 +1,6 @@
 .DS_Store
 Thumbs.db
 
-/.is-dev-mode
-/.is-local-mode
-/.is-ij-mode
-
 /.gradle
 /build
 !gradle/wrapper/gradle-wrapper.jar
@@ -13,6 +9,7 @@ Thumbs.db
 /.kotlin
 /kotlin-js-store
 local.properties
+/settings.local.gradle.kts
 
 ### IntelliJ IDEA ###
 /.idea/**
