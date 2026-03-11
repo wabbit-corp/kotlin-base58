@@ -8,7 +8,7 @@ It is useful when you want identifiers that are shorter and easier to copy than 
 
 - arbitrary `ByteArray` values
 - `Short`, `Int`, and `Long`
-- `UUID`
+- `Uuid`
 
 This library implements plain Base58 encoding and decoding. It does **not** implement checksum-bearing variants such as Bitcoin Base58Check.
 
@@ -37,19 +37,19 @@ check(encoded == "72k1xXWG59wUsYv7h2")
 check(decoded == "Hello, world!")
 ```
 
-## Primitive and UUID Helpers
+## Primitive and Uuid Helpers
 
 ```kotlin
 import one.wabbit.base58.Base58
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 val userId = 42
 val compactUserId = Base58.encodeInt(userId)
 check(Base58.decodeInt(compactUserId) == userId)
 
-val sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
-val compactSessionId = Base58.encodeUUID(sessionId)
-check(Base58.decodeUUID(compactSessionId) == sessionId)
+val sessionId = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
+val compactSessionId = Base58.encodeUuid(sessionId)
+check(Base58.decodeUuid(compactSessionId) == sessionId)
 ```
 
 ## Leading Zeros Are Preserved
@@ -71,7 +71,7 @@ check(decoded.contentEquals(bytes))
 `Base58.decode*` functions throw `Base58DecodingException` when:
 
 - the input contains characters outside the Base58 alphabet
-- a typed decode receives the wrong decoded byte length, such as trying to decode a non-UUID string with `decodeUUID`
+- a typed decode receives the wrong decoded byte length, such as trying to decode a non-UUID string with `decodeUuid`
 
 ## API Notes
 

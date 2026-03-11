@@ -2,14 +2,15 @@ package one.wabbit.base58
 
 import kotlin.math.ceil
 import kotlin.math.ln
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-typealias Uuid = java.util.UUID
 
 /**
  * Thrown when a Base58 value cannot be decoded.
  *
  * This covers both malformed input, such as characters outside the Base58 alphabet,
- * and typed decode mismatches such as decoding a non-UUID string with [Base58.decodeUUID].
+ * and typed decode mismatches such as decoding a non-UUID string with [Base58.decodeUuid].
  */
 class Base58DecodingException(message: String) : Exception(message)
 
@@ -29,12 +30,13 @@ class Base58DecodingException(message: String) : Exception(message)
  * val decoded = Base58.decode(encoded)
  * println(decoded.decodeToString()) // Prints: Hello, world!
  *
- * val uuid = java.util.UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
- * val encodedUUID = Base58.encodeUUID(uuid)
- * val decodedUUID = Base58.decodeUUID(encodedUUID)
- * println(uuid == decodedUUID) // Prints: true
+ * val uuid = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
+ * val encodedUuid = Base58.encodeUuid(uuid)
+ * val decodedUuid = Base58.decodeUuid(encodedUuid)
+ * println(uuid == decodedUuid) // Prints: true
  * ```
  */
+@OptIn(ExperimentalUuidApi::class)
 object Base58 {
     /** The alphabet used by this implementation, in digit order. */
     const val alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -355,22 +357,26 @@ object Base58 {
     }
 
     /**
-     * Encodes a UUID as a Base58 string.
+     * Encodes a [Uuid] as a Base58 string.
      *
      * Example:
      * ```
-     * val uuid = java.util.UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
-     * val encoded = Base58.encodeUUID(uuid)
-     * check(Base58.decodeUUID(encoded) == uuid)
+     * val uuid = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
+     * val encoded = Base58.encodeUuid(uuid)
+     * check(Base58.decodeUuid(encoded) == uuid)
      * ```
      *
      * @param uuid The [Uuid] to encode.
      * @return The Base58-encoded string.
      */
-    fun encodeUUID(uuid: Uuid): String {
+    fun encodeUuid(uuid: Uuid): String {
         val bytes = ByteArray(16)
-        val mostSignificantBits = uuid.mostSignificantBits
-        val leastSignificantBits = uuid.leastSignificantBits
+        var mostSignificantBits = 0L
+        var leastSignificantBits = 0L
+        uuid.toLongs { msb, lsb ->
+            mostSignificantBits = msb
+            leastSignificantBits = lsb
+        }
         bytes[0] = (mostSignificantBits ushr 56).toByte()
         bytes[1] = (mostSignificantBits ushr 48).toByte()
         bytes[2] = (mostSignificantBits ushr 40).toByte()
@@ -391,14 +397,14 @@ object Base58 {
     }
 
     /**
-     * Decodes a Base58 string into a UUID.
+     * Decodes a Base58 string into a [Uuid].
      *
      * @param value The Base58-encoded string to decode.
      * @return The decoded [Uuid].
      * @throws Base58DecodingException if the input is invalid or not the correct length
      */
     @Throws(Base58DecodingException::class)
-    fun decodeUUID(value: String): Uuid {
+    fun decodeUuid(value: String): Uuid {
         val bytes = decode(value)
         if (bytes.size != 16) {
             throw Base58DecodingException("Invalid UUID length: ${bytes.size}")
@@ -421,6 +427,6 @@ object Base58 {
                 (bytes[13].toLong() and 0xFF shl 16) or
                 (bytes[14].toLong() and 0xFF shl 8) or
                 (bytes[15].toLong() and 0xFF)
-        return Uuid(mostSigBits, leastSigBits)
+        return Uuid.fromLongs(mostSigBits, leastSigBits)
     }
 }

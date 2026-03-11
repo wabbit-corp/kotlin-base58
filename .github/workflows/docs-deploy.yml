@@ -28,6 +28,9 @@ jobs:
           cache: gradle
 
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Ensure Gradle wrapper is executable
         run: chmod +x ./gradlew
 

@@ -58,15 +58,15 @@ check(decodedOrderId == orderId)
 
 These helpers use big-endian byte order, which keeps the encoding deterministic across JVMs and interoperable with non-Kotlin implementations that use the same convention.
 
-## UUID Example
+## Uuid Example
 
 ```kotlin
 import one.wabbit.base58.Base58
-import java.util.UUID
+import kotlin.uuid.Uuid
 
-val sessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
-val encodedSessionId = Base58.encodeUUID(sessionId)
-val decodedSessionId = Base58.decodeUUID(encodedSessionId)
+val sessionId = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
+val encodedSessionId = Base58.encodeUuid(sessionId)
+val decodedSessionId = Base58.decodeUuid(encodedSessionId)
 
 check(decodedSessionId == sessionId)
 ```
@@ -92,7 +92,7 @@ check(decoded.contentEquals(bytes))
 - the input contains characters outside the Base58 alphabet
 - the decoded byte length does not match the requested target type
 
-For example, `decodeUUID` rejects values that do not decode to exactly 16 bytes.
+For example, `decodeUuid` rejects values that do not decode to exactly 16 bytes.
 
 ## API Reference
 
