@@ -4,6 +4,7 @@ import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -177,5 +178,20 @@ class Base58Spec {
             input.contentEquals(decoded),
             "Encoding and decoding a large input should match the original input",
         )
+    }
+
+    @Test
+    fun decodingRejectsInvalidCharacters() {
+        val error = assertFailsWith<Base58DecodingException> { Base58.decode("0OIl") }
+        assertTrue(error.message!!.contains("Illegal character"))
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    @Test
+    fun typedDecodersRejectWrongLengths() {
+        assertFailsWith<Base58DecodingException> { Base58.decodeShort("") }
+        assertFailsWith<Base58DecodingException> { Base58.decodeInt("2g") }
+        assertFailsWith<Base58DecodingException> { Base58.decodeLong("2g") }
+        assertFailsWith<Base58DecodingException> { Base58.decodeUuid("2g") }
     }
 }

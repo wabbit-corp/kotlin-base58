@@ -267,7 +267,7 @@ object Base58 {
         if (bytes.size != 2) {
             throw Base58DecodingException("Invalid Short length: ${bytes.size}")
         }
-        return ((bytes[0].toInt() and 0xFF shl 8) or (bytes[1].toInt() and 0xFF)).toShort()
+        return ((((bytes[0].toInt() and 0xFF) shl 8) or (bytes[1].toInt() and 0xFF))).toShort()
     }
 
     /**
@@ -306,9 +306,9 @@ object Base58 {
         if (bytes.size != 4) {
             throw Base58DecodingException("Invalid Int length: ${bytes.size}")
         }
-        return (bytes[0].toInt() and 0xFF shl 24) or
-            (bytes[1].toInt() and 0xFF shl 16) or
-            (bytes[2].toInt() and 0xFF shl 8) or
+        return ((bytes[0].toInt() and 0xFF) shl 24) or
+            ((bytes[1].toInt() and 0xFF) shl 16) or
+            ((bytes[2].toInt() and 0xFF) shl 8) or
             (bytes[3].toInt() and 0xFF)
     }
 
@@ -346,13 +346,13 @@ object Base58 {
         if (bytes.size != 8) {
             throw Base58DecodingException("Invalid Long length: ${bytes.size}")
         }
-        return (bytes[0].toLong() and 0xFF shl 56) or
-            (bytes[1].toLong() and 0xFF shl 48) or
-            (bytes[2].toLong() and 0xFF shl 40) or
-            (bytes[3].toLong() and 0xFF shl 32) or
-            (bytes[4].toLong() and 0xFF shl 24) or
-            (bytes[5].toLong() and 0xFF shl 16) or
-            (bytes[6].toLong() and 0xFF shl 8) or
+        return ((bytes[0].toLong() and 0xFF) shl 56) or
+            ((bytes[1].toLong() and 0xFF) shl 48) or
+            ((bytes[2].toLong() and 0xFF) shl 40) or
+            ((bytes[3].toLong() and 0xFF) shl 32) or
+            ((bytes[4].toLong() and 0xFF) shl 24) or
+            ((bytes[5].toLong() and 0xFF) shl 16) or
+            ((bytes[6].toLong() and 0xFF) shl 8) or
             (bytes[7].toLong() and 0xFF)
     }
 
@@ -410,22 +410,22 @@ object Base58 {
             throw Base58DecodingException("Invalid UUID length: ${bytes.size}")
         }
         val mostSigBits =
-            (bytes[0].toLong() and 0xFF shl 56) or
-                (bytes[1].toLong() and 0xFF shl 48) or
-                (bytes[2].toLong() and 0xFF shl 40) or
-                (bytes[3].toLong() and 0xFF shl 32) or
-                (bytes[4].toLong() and 0xFF shl 24) or
-                (bytes[5].toLong() and 0xFF shl 16) or
-                (bytes[6].toLong() and 0xFF shl 8) or
+            ((bytes[0].toLong() and 0xFF) shl 56) or
+                ((bytes[1].toLong() and 0xFF) shl 48) or
+                ((bytes[2].toLong() and 0xFF) shl 40) or
+                ((bytes[3].toLong() and 0xFF) shl 32) or
+                ((bytes[4].toLong() and 0xFF) shl 24) or
+                ((bytes[5].toLong() and 0xFF) shl 16) or
+                ((bytes[6].toLong() and 0xFF) shl 8) or
                 (bytes[7].toLong() and 0xFF)
         val leastSigBits =
-            (bytes[8].toLong() and 0xFF shl 56) or
-                (bytes[9].toLong() and 0xFF shl 48) or
-                (bytes[10].toLong() and 0xFF shl 40) or
-                (bytes[11].toLong() and 0xFF shl 32) or
-                (bytes[12].toLong() and 0xFF shl 24) or
-                (bytes[13].toLong() and 0xFF shl 16) or
-                (bytes[14].toLong() and 0xFF shl 8) or
+            ((bytes[8].toLong() and 0xFF) shl 56) or
+                ((bytes[9].toLong() and 0xFF) shl 48) or
+                ((bytes[10].toLong() and 0xFF) shl 40) or
+                ((bytes[11].toLong() and 0xFF) shl 32) or
+                ((bytes[12].toLong() and 0xFF) shl 24) or
+                ((bytes[13].toLong() and 0xFF) shl 16) or
+                ((bytes[14].toLong() and 0xFF) shl 8) or
                 (bytes[15].toLong() and 0xFF)
         return Uuid.fromLongs(mostSigBits, leastSigBits)
     }
