@@ -52,6 +52,8 @@ val compactSessionId = Base58.encodeUuid(sessionId)
 check(Base58.decodeUuid(compactSessionId) == sessionId)
 ```
 
+These typed helpers use fixed-width big-endian binary representations. They are not compact numeric Base58 helpers, so `decodeInt("j")` does not decode to `42`.
+
 ## Leading Zeros Are Preserved
 
 Base58 often appears in contexts where binary data may contain leading zero bytes. Those zeros are preserved by this implementation:

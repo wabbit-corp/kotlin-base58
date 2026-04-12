@@ -1,5 +1,9 @@
+// SPDX-License-Identifier: LicenseRef-Wabbit-Public-Test-License-1.1
+
 package one.wabbit.base58
 
+import kotlin.math.ceil
+import kotlin.math.ln
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -10,6 +14,8 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class Base58Spec {
+    private val random = Random(0xB58)
+
     //    private fun SplittableRandom.nextBytes(size: Int): ByteArray {
     //        val bytes = ByteArray(size)
     //        nextBytes(bytes)
@@ -52,7 +58,7 @@ class Base58Spec {
     @Test
     fun encodingInt16() {
         for (i in 1..100) {
-            val value = Random.nextInt().toShort()
+            val value = random.nextInt().toShort()
             val encoded = Base58.encodeShort(value)
             val decoded = Base58.decodeShort(encoded)
             assertEquals(value, decoded)
@@ -62,7 +68,7 @@ class Base58Spec {
     @Test
     fun encodingInt32() {
         for (i in 1..100) {
-            val value = Random.nextInt()
+            val value = random.nextInt()
             val encoded = Base58.encodeInt(value)
             val decoded = Base58.decodeInt(encoded)
             assertEquals(value, decoded)
@@ -72,7 +78,7 @@ class Base58Spec {
     @Test
     fun encodingInt64() {
         for (i in 1..100) {
-            val value = Random.nextLong()
+            val value = random.nextLong()
             val encoded = Base58.encodeLong(value)
             val decoded = Base58.decodeLong(encoded)
             assertEquals(value, decoded)
@@ -83,7 +89,7 @@ class Base58Spec {
     @Test
     fun encodingUuid() {
         for (i in 1..100) {
-            val value = Uuid.fromLongs(Random.nextLong(), Random.nextLong())
+            val value = Uuid.fromLongs(random.nextLong(), random.nextLong())
             val encoded = Base58.encodeUuid(value)
             val decoded = Base58.decodeUuid(encoded)
             assertEquals(value, decoded)
@@ -96,7 +102,7 @@ class Base58Spec {
         val inputSizes = listOf(0, 1, 10, 100, 1000)
 
         for (size in inputSizes) {
-            val input = Random.nextBytes(size)
+            val input = random.nextBytes(size)
             val encoded = Base58.encode(input)
             val decoded = Base58.decode(encoded)
 
@@ -170,7 +176,7 @@ class Base58Spec {
 
     @Test
     fun encodingLargeByteArrays() {
-        val input = Random.nextBytes(1000)
+        val input = random.nextBytes(1000)
         val encoded = Base58.encode(input)
         val decoded = Base58.decode(encoded)
 
@@ -193,5 +199,40 @@ class Base58Spec {
         assertFailsWith<Base58DecodingException> { Base58.decodeInt("2g") }
         assertFailsWith<Base58DecodingException> { Base58.decodeLong("2g") }
         assertFailsWith<Base58DecodingException> { Base58.decodeUuid("2g") }
+    }
+
+    @Test
+    fun encodedLengthBoundCoversLargeRegressionSize() {
+        val bytes = 990_572_048
+        val oldFloatingEstimate = ceil(bytes * (ln(256.0) / ln(58.0))).toInt()
+        val safeBound = Base58.maxEncodedLengthForByteCount(bytes)
+
+        assertEquals(((bytes.toLong() * 138L) / 100L) + 1L, safeBound.toLong())
+        assertTrue(safeBound >= oldFloatingEstimate)
+    }
+
+    @Test
+    fun typedHelpersUseFixedWidthBinaryRepresentation() {
+        val encodedInt = Base58.encodeInt(42)
+        assertEquals(Base58.encode(byteArrayOf(0, 0, 0, 42)), encodedInt)
+        assertEquals("111j", encodedInt)
+        assertFailsWith<Base58DecodingException> { Base58.decodeInt("j") }
+    }
+
+    @Test
+    fun typedHelpersRoundTripBoundaryValues() {
+        val shortValues = listOf<Short>(0, -1, Short.MIN_VALUE, Short.MAX_VALUE)
+        val intValues = listOf(0, -1, Int.MIN_VALUE, Int.MAX_VALUE)
+        val longValues = listOf(0L, -1L, Long.MIN_VALUE, Long.MAX_VALUE)
+
+        for (value in shortValues) {
+            assertEquals(value, Base58.decodeShort(Base58.encodeShort(value)))
+        }
+        for (value in intValues) {
+            assertEquals(value, Base58.decodeInt(Base58.encodeInt(value)))
+        }
+        for (value in longValues) {
+            assertEquals(value, Base58.decodeLong(Base58.encodeLong(value)))
+        }
     }
 }

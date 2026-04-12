@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package one.wabbit.base58
 
 import kotlin.math.ceil
@@ -5,24 +7,23 @@ import kotlin.math.ln
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-
 /**
  * Thrown when a Base58 value cannot be decoded.
  *
- * This covers both malformed input, such as characters outside the Base58 alphabet,
- * and typed decode mismatches such as decoding a non-UUID string with [Base58.decodeUuid].
+ * This covers both malformed input, such as characters outside the Base58 alphabet, and typed
+ * decode mismatches such as decoding a non-UUID string with [Base58.decodeUuid].
  */
 class Base58DecodingException(message: String) : Exception(message)
 
 /**
  * Provides Base58 encoding and decoding functionality.
  *
- * Base58 is a binary-to-text encoding scheme that avoids visually ambiguous characters such as
- * `0`, `O`, `I`, and `l`.
+ * Base58 is a binary-to-text encoding scheme that avoids visually ambiguous characters such as `0`,
+ * `O`, `I`, and `l`.
  *
- * Use it when you want compact, human-facing identifiers without punctuation-heavy encodings.
- * This implementation handles raw byte arrays as well as fixed-width helpers for [Short], [Int],
- * [Long], and [Uuid].
+ * Use it when you want compact, human-facing identifiers without punctuation-heavy encodings. This
+ * implementation handles raw byte arrays as well as fixed-width helpers for [Short], [Int], [Long],
+ * and [Uuid].
  *
  * Example usage:
  * ```
@@ -44,6 +45,17 @@ object Base58 {
     private const val ENCODED_ZERO = '1'
     private val INDICES = IntArray(128) { alphabet.indexOf(it.toChar()) }
     private val K = ln(256.0) / ln(58.0)
+
+    internal fun maxEncodedLengthForByteCount(bytes: Int): Int {
+        require(bytes >= 0) { "bytes must be >= 0" }
+        if (bytes == 0) return 0
+
+        val result = ((bytes.toLong() * 138L) / 100L) + 1L
+        require(result <= Int.MAX_VALUE.toLong()) {
+            "Byte count is too large to encode safely: $bytes"
+        }
+        return result.toInt()
+    }
 
     /**
      * Encodes a byte array as a Base58 string.
@@ -75,7 +87,10 @@ object Base58 {
             zeros += 1
         }
 
-        val encoded = CharArray(ceil((inputSize - zeros) * K).toInt() + zeros)
+        val nonZeroBytes = inputSize - zeros
+        val encodedLength = maxEncodedLengthForByteCount(nonZeroBytes).toLong() + zeros.toLong()
+        require(encodedLength <= Int.MAX_VALUE.toLong()) { "Input too large to safely process" }
+        val encoded = CharArray(encodedLength.toInt())
         var outputStart = encoded.size
         var inputStart = zeros
         while (inputStart < inputSize) {
@@ -273,7 +288,11 @@ object Base58 {
     /**
      * Encodes an Int as a Base58 string.
      *
-     * Values are encoded using big-endian byte order.
+     * Values are encoded using fixed-width big-endian byte order.
+     *
+     * This is a binary serialization helper, not a compact numeric Base58 representation. For
+     * example, `encodeInt(42)` encodes the four-byte sequence `00 00 00 2A`, preserving the leading
+     * zero bytes.
      *
      * Example:
      * ```
@@ -296,6 +315,9 @@ object Base58 {
     /**
      * Decodes a Base58 string into an Int.
      *
+     * This expects the fixed-width four-byte representation produced by [encodeInt]. It does not
+     * accept shorter numeric encodings such as `"j"` for `42`.
+     *
      * @param value The Base58-encoded string to decode.
      * @return The decoded [Int] value.
      * @throws Base58DecodingException if the input is invalid or not the correct length
@@ -315,7 +337,7 @@ object Base58 {
     /**
      * Encodes a Long as a Base58 string.
      *
-     * Values are encoded using big-endian byte order.
+     * Values are encoded using fixed-width big-endian byte order.
      *
      * @param value The [Long] value to encode.
      * @return The Base58-encoded string.

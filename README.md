@@ -56,7 +56,9 @@ val decodedOrderId = Base58.decodeInt(encodedOrderId)
 check(decodedOrderId == orderId)
 ```
 
-These helpers use big-endian byte order, which keeps the encoding deterministic across JVMs and interoperable with non-Kotlin implementations that use the same convention.
+These helpers use fixed-width big-endian byte order, which keeps the encoding deterministic across JVMs and interoperable with non-Kotlin implementations that use the same convention.
+
+They are binary serialization helpers, not compact numeric Base58 helpers. For example, `encodeInt(42)` encodes the four-byte sequence `00 00 00 2A`, so `decodeInt("j")` fails even though `"j"` is the compact Base58 representation of numeric `42`.
 
 ## Uuid Example
 
