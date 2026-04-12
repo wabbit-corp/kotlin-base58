@@ -17,6 +17,8 @@ tmp.*
 .tmp_*
 .tmp.*
 *.bak
+__pycache__/
+*.pyc
 
 /.gradle
 /build
