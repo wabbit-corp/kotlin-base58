@@ -17,8 +17,6 @@ tmp.*
 .tmp_*
 .tmp.*
 *.bak
-__pycache__/
-*.pyc
 
 /.gradle
 /build
@@ -62,3 +60,6 @@ bin/
 /dist/
 /nbdist/
 /.nb-gradle/
+
+__pycache__/
+*.pyc
