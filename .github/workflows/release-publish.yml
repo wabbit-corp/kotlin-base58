@@ -7,7 +7,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   publish:
@@ -58,9 +61,114 @@ jobs:
 
       - name: Publish release to Maven Central
         if: github.event_name == 'push'
+
         env:
+
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_USERNAME }}
+
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_PASSWORD }}
+
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+
         run: ./gradlew --no-daemon build publishAndReleaseToMavenCentral
+
+      - name: Bundle GitHub Release assets
+        if: github.event_name == 'push'
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import zipfile
+          from pathlib import Path
+
+          output_dir = Path("build/releases")
+          output_dir.mkdir(parents=True, exist_ok=True)
+
+          repo_name = os.environ["GITHUB_REPOSITORY"].split("/", 1)[1]
+          version_label = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+          projects = json.loads(r'''[{"projectId": "kotlin-base58", "assetSlug": "kotlin-base58", "bundleKind": "gradle-publications", "archivePrefix": "publications", "sourceDir": "build/publications"}]''')
+
+          assets = []
+          bundle_paths = []
+          for project in projects:
+              source_dir = Path(project["sourceDir"])
+              if not source_dir.is_dir():
+                  raise SystemExit(f"Missing release bundle source directory: {source_dir}")
+
+              files = sorted(path for path in source_dir.rglob("*") if path.is_file())
+              if not files:
+                  raise SystemExit(f"No release bundle inputs found under {source_dir}")
+
+              bundle_name = f"{repo_name}-{version_label}-{project['assetSlug']}.zip"
+              bundle_path = output_dir / bundle_name
+              with zipfile.ZipFile(bundle_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                  for path in files:
+                      archive.write(path, Path(project["archivePrefix"]) / path.relative_to(source_dir))
+
+              digest = hashlib.sha256(bundle_path.read_bytes()).hexdigest()
+              assets.append(
+                  {
+                      "projectId": project["projectId"],
+                      "bundleKind": project["bundleKind"],
+                      "fileName": bundle_path.name,
+                      "path": str(bundle_path.resolve()),
+                      "sha256": digest,
+                      "sizeBytes": bundle_path.stat().st_size,
+                  }
+              )
+              bundle_paths.append(bundle_path)
+
+          aggregate_path = output_dir / f"{repo_name}-{version_label}-all.zip"
+          with zipfile.ZipFile(aggregate_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+              for path in bundle_paths:
+                  archive.write(path, path.name)
+
+          aggregate_digest = hashlib.sha256(aggregate_path.read_bytes()).hexdigest()
+          assets.append(
+              {
+                  "kind": "aggregate",
+                  "fileName": aggregate_path.name,
+                  "path": str(aggregate_path.resolve()),
+                  "sha256": aggregate_digest,
+                  "sizeBytes": aggregate_path.stat().st_size,
+              }
+          )
+
+          checksums_path = output_dir / "SHA256SUMS"
+          checksum_lines = [
+              f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}"
+              for path in sorted([*bundle_paths, aggregate_path])
+          ]
+          checksums_path.write_text("\n".join(checksum_lines) + "\n", encoding="utf-8")
+
+          manifest_path = output_dir / "release-manifest.json"
+          manifest_path.write_text(
+              json.dumps(
+                  {
+                      "repo": {
+                          "name": repo_name,
+                          "githubRepo": os.environ["GITHUB_REPOSITORY"],
+                          "versionLabel": version_label,
+                      },
+                      "assets": assets,
+                  },
+                  indent=2,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Publish GitHub Release assets
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            build/releases/*.zip
+            build/releases/release-manifest.json
+            build/releases/SHA256SUMS
