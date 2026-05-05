@@ -1,5 +1,12 @@
 # kotlin-base58
 
+![](./.meta/github-project-banner.png)
+
+<p align=center>
+    <img src="https://img.shields.io/maven-central/v/one.wabbit/kotlin-base58" alt="Maven Central">
+    <img src="https://img.shields.io/badge/Kotlin-Multiplatform-7F52FF" alt="Kotlin Multiplatform">
+</p>
+
 `kotlin-base58` is a Kotlin Multiplatform library for encoding binary data as compact,
 human-friendly Base58 strings and decoding those strings back to bytes or typed values.
 
@@ -18,7 +25,7 @@ That makes it useful for invitation codes, external IDs, short opaque tokens, an
 
 This library implements plain Base58 encoding. It does not implement Base58Check or any checksum-bearing Bitcoin-specific format.
 
-## Installation
+## 🚀 Installation
 
 ```kotlin
 repositories {
@@ -30,7 +37,7 @@ dependencies {
 }
 ```
 
-## Quick Start
+## 🚀 Usage
 
 ```kotlin
 import one.wabbit.base58.Base58

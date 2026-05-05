@@ -129,7 +129,7 @@ object Base58 {
      * @param input The Base58-encoded string to decode.
      * @return The decoded byte array.
      * @throws Base58DecodingException if [input] contains a character outside [alphabet], including
-     * non-ASCII characters
+     *   non-ASCII characters
      */
     @Throws(Base58DecodingException::class)
     fun decode(input: String): ByteArray {
@@ -346,9 +346,9 @@ object Base58 {
     /**
      * Encodes a [Long] as a Base58 string.
      *
-     * Values are encoded using the fixed-width eight-byte big-endian two's-complement representation
-     * of the signed integer value. This is a binary serialization helper, not a compact numeric
-     * Base58 representation.
+     * Values are encoded using the fixed-width eight-byte big-endian two's-complement
+     * representation of the signed integer value. This is a binary serialization helper, not a
+     * compact numeric Base58 representation.
      *
      * @param value The [Long] value to encode.
      * @return The Base58-encoded string.
@@ -395,8 +395,8 @@ object Base58 {
     /**
      * Encodes a [Uuid] as a Base58 string.
      *
-     * UUIDs are encoded as 16 bytes: the most significant bits followed by the least significant bits,
-     * each in big-endian byte order.
+     * UUIDs are encoded as 16 bytes: the most significant bits followed by the least significant
+     * bits, each in big-endian byte order.
      *
      * This function uses Kotlin's experimental [Uuid] type, so callers may need to opt in to
      * `ExperimentalUuidApi`.
