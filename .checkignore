@@ -1,0 +1,8 @@
+# Repo-local check suppressions for intentional generated assets and test vectors.
+check:ignore E_DUPLICATE_FILE .banner.png
+check:ignore E_KMP_AMBIGUOUS_NATIVE_NAME .
+check:ignore E_KMP_REDUNDANT_TARGET_ALIAS .
+check:ignore E_DUPLICATE_IDENTIFIER docs/dokka-module.md
+check:ignore E_DUPLICATE_IDENTIFIER docs/user-guide.md
+check:ignore E_DUPLICATE_IDENTIFIER src/commonMain/kotlin/one/wabbit/base58/Base58.kt
+check:ignore E_HIGH_ENTROPY_STRING src/commonTest/kotlin/one/wabbit/base58/Base58Spec.kt
