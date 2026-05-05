@@ -1,6 +1,7 @@
 # Module kotlin-base58
 
-`kotlin-base58` is a small JVM library for turning binary values into human-friendly Base58 strings and back again.
+`kotlin-base58` is a small Kotlin Multiplatform library for turning binary values into
+human-friendly Base58 strings and back again.
 
 It is useful when you want identifiers that are shorter and easier to copy than hexadecimal while avoiding visually ambiguous characters such as `0`, `O`, `I`, and `l`.
 
@@ -41,15 +42,19 @@ check(decoded == "Hello, world!")
 
 ```kotlin
 import one.wabbit.base58.Base58
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-val userId = 42
-val compactUserId = Base58.encodeInt(userId)
-check(Base58.decodeInt(compactUserId) == userId)
+@OptIn(ExperimentalUuidApi::class)
+fun example() {
+    val userId = 42
+    val compactUserId = Base58.encodeInt(userId)
+    check(Base58.decodeInt(compactUserId) == userId)
 
-val sessionId = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
-val compactSessionId = Base58.encodeUuid(sessionId)
-check(Base58.decodeUuid(compactSessionId) == sessionId)
+    val sessionId = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
+    val compactSessionId = Base58.encodeUuid(sessionId)
+    check(Base58.decodeUuid(compactSessionId) == sessionId)
+}
 ```
 
 These typed helpers use fixed-width big-endian binary representations. They are not compact numeric Base58 helpers, so `decodeInt("j")` does not decode to `42`.

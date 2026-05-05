@@ -1,6 +1,7 @@
 # kotlin-base58
 
-`kotlin-base58` is a JVM library for encoding binary data as compact, human-friendly Base58 strings and decoding those strings back to bytes or typed values.
+`kotlin-base58` is a Kotlin Multiplatform library for encoding binary data as compact,
+human-friendly Base58 strings and decoding those strings back to bytes or typed values.
 
 It is designed for cases where hexadecimal is too long and Base64 is too punctuation-heavy, especially for IDs that humans may need to read, paste, or type.
 
@@ -29,7 +30,7 @@ dependencies {
 }
 ```
 
-## Byte Array Example
+## Quick Start
 
 ```kotlin
 import one.wabbit.base58.Base58
@@ -64,14 +65,21 @@ They are binary serialization helpers, not compact numeric Base58 helpers. For e
 
 ```kotlin
 import one.wabbit.base58.Base58
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-val sessionId = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
-val encodedSessionId = Base58.encodeUuid(sessionId)
-val decodedSessionId = Base58.decodeUuid(encodedSessionId)
+@OptIn(ExperimentalUuidApi::class)
+fun example() {
+    val sessionId = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
+    val encodedSessionId = Base58.encodeUuid(sessionId)
+    val decodedSessionId = Base58.decodeUuid(encodedSessionId)
 
-check(decodedSessionId == sessionId)
+    check(decodedSessionId == sessionId)
+}
 ```
+
+The UUID helpers use Kotlin's experimental `kotlin.uuid.Uuid` type, so call sites may need to opt in
+with `@OptIn(ExperimentalUuidApi::class)`.
 
 ## Leading Zeros
 
@@ -92,15 +100,29 @@ check(decoded.contentEquals(bytes))
 `Base58.decode` and the typed decode helpers throw `Base58DecodingException` when:
 
 - the input contains characters outside the Base58 alphabet
+- the input contains non-ASCII characters
 - the decoded byte length does not match the requested target type
 
 For example, `decodeUuid` rejects values that do not decode to exactly 16 bytes.
 
-## API Reference
+## Status
 
-Published API docs are available at:
+This library is small and stable in scope. It implements plain Base58 only; checksum-bearing
+formats such as Base58Check are intentionally out of scope.
 
-- [https://wabbit-corp.github.io/kotlin-base58/](https://wabbit-corp.github.io/kotlin-base58/)
+## Documentation
+
+- [User guide](docs/user-guide.md)
+- [API reference notes](docs/api-reference.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Development](docs/development.md)
+
+Generated API docs can be built locally with Dokka. See [API reference notes](docs/api-reference.md)
+for the command.
+
+## Release Notes
+
+- [CHANGELOG.md](CHANGELOG.md)
 
 ## Licensing
 

@@ -12,6 +12,8 @@ import kotlin.uuid.Uuid
  *
  * This covers both malformed input, such as characters outside the Base58 alphabet, and typed
  * decode mismatches such as decoding a non-UUID string with [Base58.decodeUuid].
+ *
+ * @param message Description of the decoding failure.
  */
 class Base58DecodingException(message: String) : Exception(message)
 
@@ -70,7 +72,7 @@ object Base58 {
      *
      * @param input The byte array to encode.
      * @return The Base58-encoded string.
-     * @throws IllegalArgumentException if the input is too large to safely process
+     * @throws IllegalArgumentException if [input] is too large to safely process
      */
     fun encode(input: ByteArray): String {
         if (input.isEmpty()) return ""
@@ -126,7 +128,8 @@ object Base58 {
      *
      * @param input The Base58-encoded string to decode.
      * @return The decoded byte array.
-     * @throws Base58DecodingException if the input is not a valid Base58 string
+     * @throws Base58DecodingException if [input] contains a character outside [alphabet], including
+     * non-ASCII characters
      */
     @Throws(Base58DecodingException::class)
     fun decode(input: String): ByteArray {
@@ -255,9 +258,11 @@ object Base58 {
     }
 
     /**
-     * Encodes a Short as a Base58 string.
+     * Encodes a [Short] as a Base58 string.
      *
-     * Values are encoded using big-endian byte order.
+     * Values are encoded using the fixed-width two-byte big-endian two's-complement representation
+     * of the signed integer value. This is a binary serialization helper, not a compact numeric
+     * Base58 representation.
      *
      * @param value The [Short] value to encode.
      * @return The Base58-encoded string.
@@ -270,7 +275,10 @@ object Base58 {
     }
 
     /**
-     * Decodes a Base58 string into a Short.
+     * Decodes a Base58 string into a [Short].
+     *
+     * The input must decode to the fixed-width two-byte representation produced by [encodeShort].
+     * The result is interpreted as a signed two's-complement [Short].
      *
      * @param value The Base58-encoded string to decode.
      * @return The decoded [Short] value.
@@ -288,7 +296,8 @@ object Base58 {
     /**
      * Encodes an Int as a Base58 string.
      *
-     * Values are encoded using fixed-width big-endian byte order.
+     * Values are encoded using the fixed-width four-byte big-endian two's-complement representation
+     * of the signed integer value.
      *
      * This is a binary serialization helper, not a compact numeric Base58 representation. For
      * example, `encodeInt(42)` encodes the four-byte sequence `00 00 00 2A`, preserving the leading
@@ -335,9 +344,11 @@ object Base58 {
     }
 
     /**
-     * Encodes a Long as a Base58 string.
+     * Encodes a [Long] as a Base58 string.
      *
-     * Values are encoded using fixed-width big-endian byte order.
+     * Values are encoded using the fixed-width eight-byte big-endian two's-complement representation
+     * of the signed integer value. This is a binary serialization helper, not a compact numeric
+     * Base58 representation.
      *
      * @param value The [Long] value to encode.
      * @return The Base58-encoded string.
@@ -356,7 +367,10 @@ object Base58 {
     }
 
     /**
-     * Decodes a Base58 string into a Long.
+     * Decodes a Base58 string into a [Long].
+     *
+     * The input must decode to the fixed-width eight-byte representation produced by [encodeLong].
+     * The result is interpreted as a signed two's-complement [Long].
      *
      * @param value The Base58-encoded string to decode.
      * @return The decoded [Long] value.
@@ -380,6 +394,12 @@ object Base58 {
 
     /**
      * Encodes a [Uuid] as a Base58 string.
+     *
+     * UUIDs are encoded as 16 bytes: the most significant bits followed by the least significant bits,
+     * each in big-endian byte order.
+     *
+     * This function uses Kotlin's experimental [Uuid] type, so callers may need to opt in to
+     * `ExperimentalUuidApi`.
      *
      * Example:
      * ```
@@ -420,6 +440,11 @@ object Base58 {
 
     /**
      * Decodes a Base58 string into a [Uuid].
+     *
+     * The input must decode to the 16-byte representation produced by [encodeUuid].
+     *
+     * This function uses Kotlin's experimental [Uuid] type, so callers may need to opt in to
+     * `ExperimentalUuidApi`.
      *
      * @param value The Base58-encoded string to decode.
      * @return The decoded [Uuid].
